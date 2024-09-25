@@ -14,7 +14,7 @@ def scaled_dot_product_attention(
     scale=None,
     return_attn=False,
     attn_top_k=1.0,
-) -> Tuple[torch.Tensor, torch.Tensor | None]:
+):
     """
     Uses naive PyTorch sdpa implementation if we need to return_attn. Otherwise use the optimized version.
 

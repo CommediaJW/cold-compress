@@ -388,7 +388,7 @@ class KVCache(ABC, nn.Module):
         )
 
     def _fill_contiguous(
-        self, input_pos, k_val, v_val, fill_idxs: torch.Tensor | int, **kwargs
+        self, input_pos, k_val, v_val, fill_idxs, **kwargs
     ):
         """
         A simple utility to fill the cache and pos.
@@ -401,7 +401,7 @@ class KVCache(ABC, nn.Module):
             self.mask[:, :, :, fill_idxs] = True
 
     @abstractmethod
-    def _fill(self, input_pos, k_val, v_val, fill_idxs: torch.Tensor | int, **kwargs):
+    def _fill(self, input_pos, k_val, v_val, fill_idxs, **kwargs):
         """
         Modifies the cache in-place with key-value pairs at given fill_indices.
 
@@ -433,7 +433,7 @@ class KVCacheHeadConstant(KVCache):
             max_batch_size, n_heads, head_dim, dtype, head_specific=False, **kwargs
         )
 
-    def _fill(self, input_pos, k_val, v_val, fill_idxs: torch.Tensor | int, **kwargs):
+    def _fill(self, input_pos, k_val, v_val, fill_idxs, **kwargs):
         return self._fill_contiguous(input_pos, k_val, v_val, fill_idxs, **kwargs)
 
 
@@ -457,7 +457,7 @@ class KVCacheHeadSpecific(KVCache):
             **kwargs,
         )
 
-    def _fill(self, input_pos, k_val, v_val, fill_idxs: torch.Tensor | int, **kwargs):
+    def _fill(self, input_pos, k_val, v_val, fill_idxs, **kwargs):
         """
         Modifies the cache in-place with key-value pairs at given fill_indices.
 

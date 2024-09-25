@@ -92,7 +92,7 @@ def merge_cache_config(args):
 
 
 def compute_max_seq_length(
-    model, prompt_lens: list[int], target_lens: list[int], max_new_tokens: int
+    model, prompt_lens: list, target_lens: list, max_new_tokens: int
 ) -> int:
     max_prompt_length = max(len(prompt_lens[i]) for i in range(len(prompt_lens)))
     # Should either pass target_lens or max_new_tokens
@@ -156,6 +156,7 @@ def prefill(
         .unsqueeze(0)
         .to(x.device)
     )
+
     logits = model(x, input_pos, mask=causal_mask, is_prefill=True)
     return greedy(logits, next_token)
 
@@ -222,7 +223,7 @@ def model_forward(model, x, input_pos):
 
 
 def apply_pattern(
-    pattern: list[str | int],
+    pattern,
     out_size: int,
     extension_strategy: str = "tile",
     max_seq_length: int = None,
@@ -323,7 +324,8 @@ def apply_pyramid_pattern(
 
 def setup_caches(
     model: Transformer,
-    tokenizer: TokenizerInterface,
+    special_ids,
+    punctuation_ids,
     device: torch.device,
     max_seq_length: int,
     cache_kwargs: dict = None,
@@ -378,8 +380,8 @@ def setup_caches(
     if cache_kwargs["cache_strategy"][0] == "hybrid":
         # We need to pass the special and punctuation token ids to the cache via cache_kwargs
         cache_kwargs["token_ids"] = {
-            "special": tokenizer.special_ids(),
-            "punctuation": tokenizer.punctuation_ids(),
+            "special": special_ids,
+            "punctuation": punctuation_ids,
         }
 
     with torch.device(device):
@@ -404,7 +406,7 @@ def generate(
     decode_one_token: callable,
     max_new_tokens: int,
     next_tokens: Optional[torch.Tensor] = None,
-    terminator_ids: Optional[list] = None,
+    eos_token_id: Optional[list] = None,
     feed_long_prompts: bool = False,
     decode_first_token: bool = False,
     attn_top_k: float = 1,
@@ -463,6 +465,9 @@ def generate(
 
     t0 = time.perf_counter()
 
+    if eos_token_id is not None:
+        sampling_kwargs["terminator_ids"] = eos_token_id
+
     ret = prefill(
         model,
         prompt.view(1, -1),
@@ -486,10 +491,10 @@ def generate(
         input_pos,
         decode_one_token,
         max_new_tokens - 1,
-        terminator_ids=terminator_ids,
+        terminator_ids=eos_token_id,
         prefix=prefix,
         attn_top_k=attn_top_k,
-        **sampling_kwargs,
+        # **sampling_kwargs,
     )
 
     t2 = time.perf_counter()
