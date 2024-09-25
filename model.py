@@ -419,7 +419,7 @@ class Attention(nn.Module):
 
         # Prefill updates happen after since we don't use the KV cache for prefill attention
         if is_prefill:
-            input_pos, k, v, attn = self.compress_prompt(input_pos, k, v, attn)
+            # input_pos, k, v, attn = self.compress_prompt(input_pos, k, v, attn)
             self.kv_cache.update_kv(input_pos, k, v, is_prefill, **cache_kwargs)
 
         # [Optional] Update the KV Cache internal state now that we have attention probabilities

@@ -11,4 +11,4 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python3 run_pred.py \
     --dataset_path /nfs/shared_LLM_dataset/LongBench \
     --dataset_name longbench \
     --output_dir ./preds/pred_longbench_Meta-Llama-3.1-8B-Instruct_0-to-32k_full \
-    --method full --write_in_time --mp_num 1 --e --min_seq_len 0
+    --write_in_time --mp_num 1 --e --min_seq_len 0

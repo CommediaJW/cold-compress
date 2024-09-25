@@ -78,7 +78,7 @@ def pred_loop_func(args, rank, task_queue, dataset_manager):
     cache_kwargs["history_window_size"] = 1
     cache_kwargs["attn_thresholding"] = False
     cache_kwargs["min_recovery_frac"] = 0.9
-    setup_caches(model, generate_kwargs["special_ids"], generate_kwargs["punc_ids"], rank, 32000, cache_kwargs)
+    setup_caches(model, generate_kwargs["special_ids"], generate_kwargs["punc_ids"], rank, args.model_maxlen + 256, cache_kwargs)
 
     print(
         f"Worker {rank} use GPU[{rank}] mem: {torch.cuda.max_memory_allocated(id) / 1024 ** 3:.2f} GB"
